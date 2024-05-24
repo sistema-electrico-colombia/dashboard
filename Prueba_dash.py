@@ -129,4 +129,4 @@ with st.container():
         axes4.set_ylabel('COP/kWh')
         axes4.set_xlabel("fecha")
         st.pyplot(fig4)
-
+st.divider()
