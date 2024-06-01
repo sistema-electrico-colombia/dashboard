@@ -6,6 +6,7 @@ import psycopg2 as ps
 import pandas as pd
 from sqlalchemy import create_engine
 import os
+import datetime
 
 st.set_page_config(
     page_title="Sistema electrico Colombiano 2010 a 2024",
@@ -19,11 +20,11 @@ st.title("Sistema Electrico Colombiano 2010 a 2024")
 st.subheader("Por: Julián Andrés Santos Méndez ,Juan Felipe Sepulveda Mantilla, Luz Edilsa Ortiz Lopez,Julian Obando Scarpetta")
 st.divider()
 
-DB_USER_AWS=os.getenv('DB_USER_AWS')
-DB_PASSWORD_AWS=os.getenv('DB_PASSWORD_AWS')
-DB_HOST_AWS=os.getenv('DB_HOST_AWS')
-DB_PORT_AWS=os.getenv('DB_PORT_AWS')
-DB_NAME_AWS=os.getenv('DB_NAME_AWS')
+DB_USER_AWS=os.getenv('DB_USER')
+DB_PASSWORD_AWS=os.getenv('DB_PASSWORD')
+DB_HOST_AWS=os.getenv('DB_HOST')
+DB_PORT_AWS=os.getenv('DB_PORT')
+DB_NAME_AWS="analitica_sistema_electrico"
 
 conn = create_engine(f'postgresql://{DB_USER_AWS}:{DB_PASSWORD_AWS}@{DB_HOST_AWS}:{DB_PORT_AWS}/{DB_NAME_AWS}', echo=False)
 sql_query = """SELECT * FROM analitica_sistema_electrico_colombia"""
@@ -67,13 +68,30 @@ df_sistema_electrico_converted['Date'] = pd.to_datetime(df_sistema_electrico_con
 # Establecer la columna 'Date' como índice
 df_sistema_electrico_converted = df_sistema_electrico_converted.set_index('Date')
 
-default_years = [2024,2023,2022,2021, 2020, 2019,2018,2017,2016,2015,2014]
-años = df_sistema_electrico_converted.index.year.unique()
-años_seleccionados = st.sidebar.multiselect('Selecciona los Años', años, default=default_years)
+start_date = datetime.date(2010, 1, 1)
+end_date = datetime.date(2024, 4, 30)
+
+tipo_filtro = "Año"
+tipo_filtro = st.sidebar.radio(
+    "Selecciona el metodo de filtrado: ",
+    ["Año", "Intervalo de Fechas"],
+    index=1,
+)
+
+if tipo_filtro=="Año":
+    years = list(range(2010, 2025))
+    selected_year = st.sidebar.selectbox('Selecciona un año:', years)
+
+    # Filtrar el DataFrame por el año seleccionado
+    start_date = f'{selected_year}-01-01'
+    end_date = f'{selected_year}-12-31'
+else:
+    start_date = st.sidebar.date_input("Fecha Inicial", datetime.date(2010, 1, 1))
+    end_date = st.sidebar.date_input("Fecha Final", datetime.date(2024, 4, 30))
 
 # Filtrar el dataframe por los años seleccionados
-df_filtrado = df_sistema_electrico_converted[df_sistema_electrico_converted.index.year.isin(años_seleccionados)]
-
+#df_filtrado = df_sistema_electrico_converted[df_sistema_electrico_converted.index.year.isin(años_seleccionados)]
+df_filtrado = df_sistema_electrico_converted[start_date:end_date]
 
 promedio_Precio = df_filtrado['precio_bolsa_sistema_daily'].mean()
 promedio_generacion = df_filtrado['generacion_sistema_daily'].mean()
