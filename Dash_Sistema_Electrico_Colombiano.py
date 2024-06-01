@@ -13,7 +13,7 @@ st.set_page_config(
     page_icon="🧊",
     layout="wide")
 
-#st.sidebar.image('logo 2.png', use_column_width=True)
+st.sidebar.image('logo.png', use_column_width=True)
 
 # Crear una aplicación de Streamlit
 st.title("Sistema Electrico Colombiano 2010 a 2024")
