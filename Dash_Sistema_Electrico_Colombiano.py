@@ -93,6 +93,8 @@ else:
 #df_filtrado = df_sistema_electrico_converted[df_sistema_electrico_converted.index.year.isin(años_seleccionados)]
 df_filtrado = df_sistema_electrico_converted[start_date:end_date]
 
+st.markdown("**Intervalo Fechas:** "+str(start_date)+" a "+str(end_date))
+
 promedio_Precio = df_filtrado['precio_bolsa_sistema_daily'].mean()
 promedio_generacion = df_filtrado['generacion_sistema_daily'].mean()
 promedio_perdidas = df_filtrado['perdidas_sistema_daily'].mean()
